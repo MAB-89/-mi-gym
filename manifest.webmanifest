@@ -1,0 +1,11 @@
+{
+  "name": "Mi Gym",
+  "short_name": "Mi Gym",
+  "description": "Rutina de gimnasio de martes y jueves",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f1012",
+  "theme_color": "#171717",
+  "orientation": "portrait"
+}

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171717">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mi Gym">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Mi Gym · Martes/Jueves</title>
+<style>
+:root{--bg:#0f1012;--card:#1a1c20;--soft:#25282e;--text:#f5f5f5;--muted:#a9adb6;--accent:#d8ff3e;--ok:#83e86f;--danger:#ff6b6b}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:650px;margin:auto;padding:calc(18px + env(safe-area-inset-top)) 15px calc(95px + env(safe-area-inset-bottom))}
+header{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:14px}
+h1{font-size:28px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+button,input{font:inherit}.tab,.btn{border:0;border-radius:14px;padding:13px;background:var(--soft);color:var(--text);font-weight:700}
+.tab.active{background:var(--accent);color:#111}.section{margin:20px 0 8px;font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.12em}
+.card{background:var(--card);border:1px solid #2b2e34;border-radius:18px;padding:15px;margin:10px 0}
+.card.done{border-color:#536b31;opacity:.8}.top{display:flex;justify-content:space-between;gap:10px}.name{font-size:18px;font-weight:800}.meta{color:var(--muted);font-size:13px;margin-top:3px}
+.badge{background:#292d32;padding:6px 9px;border-radius:10px;font-size:12px;height:max-content}
+.controls{display:flex;align-items:center;gap:8px;margin-top:13px;flex-wrap:wrap}
+.weight{width:75px;background:#111318;border:1px solid #343841;border-radius:10px;padding:9px;color:white;text-align:center}
+.sets{display:flex;gap:8px;margin-top:13px}.set{width:42px;height:42px;border:1px solid #3a3e45;border-radius:50%;background:#24272c;color:#fff;font-weight:800}.set.on{background:var(--accent);color:#111;border-color:var(--accent)}
+.note{width:100%;margin-top:10px;background:#111318;color:#fff;border:1px solid #343841;border-radius:10px;padding:9px}
+.timer{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(620px,calc(100% - 30px));background:#23262b;border:1px solid #393d44;border-radius:18px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 8px 30px #0008}
+.time{font-size:24px;font-weight:900}.timerBtns{display:flex;gap:7px}.mini{border:0;border-radius:10px;background:#34383f;color:#fff;padding:9px 10px;font-weight:700}
+.progress{height:8px;background:#282b31;border-radius:10px;overflow:hidden;margin-top:8px}.bar{height:100%;background:var(--accent);width:0}
+.big{width:100%;background:var(--accent);color:#111;margin-top:12px}.smalltxt{font-size:12px;color:var(--muted)}
+.warm{display:flex;justify-content:space-between;align-items:center}.check{width:30px;height:30px;border-radius:50%;border:1px solid #444;background:#24272c;color:#111}.check.on{background:var(--accent)}
+details{margin-top:10px;color:var(--muted);font-size:13px}summary{cursor:pointer;color:#d9dce2}
+</style>
+</head>
+<body><main>
+<header><div><h1>🏋️ Mi Gym</h1><div class="sub" id="date"></div></div><div class="smalltxt" id="status"></div></header>
+<div class="tabs"><button class="tab" id="tue" onclick="switchDay('A')">MARTES · A</button><button class="tab" id="thu" onclick="switchDay('B')">JUEVES · B</button></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="section">CALENTAMIENTO</div>
+<div id="warmup"></div>
+<div class="section">FUERZA · TREN SUPERIOR</div>
+<div id="workout"></div>
+<div class="section">FINAL</div>
+<div id="finish"></div>
+<button class="btn big" onclick="finishWorkout()">✓ FINALIZAR ENTRENAMIENTO</button>
+<div class="smalltxt" style="margin:12px 4px">Los datos se guardan en este dispositivo. Empieza con cargas conservadoras y prioriza técnica y control.</div>
+</main>
+<div class="timer"><div><div class="smalltxt">DESCANSO</div><div class="time" id="time">01:30</div></div><div class="timerBtns"><button class="mini" onclick="setTimer(60)">60 s</button><button class="mini" onclick="setTimer(90)">90 s</button><button class="mini" onclick="toggleTimer()" id="play">▶</button></div></div>
+<script>
+const routines={
+A:[
+["Chest Press","Pecho","3 × 10–12",3,90,"Ajusta el asiento para que las empuñaduras queden aproximadamente a la altura media del pecho. Espalda apoyada; empuja sin bloquear los codos."],
+["Lat Pulldown","Espalda · dorsal","3 × 10–12",3,90,"Pecho alto y tronco estable. Lleva el agarre hacia la parte superior del pecho sin tirar con impulso."],
+["Seated Row","Espalda","3 × 10–12",3,90,"Mantén el torso estable y lleva los codos hacia atrás, juntando suavemente las escápulas."],
+["Shoulder Press","Hombros","3 × 10–12",3,90,"Espalda apoyada. Empuja hacia arriba de forma controlada sin encoger los hombros."],
+["Pec Fly","Pecho","2 × 12–15",2,75,"Mantén una ligera flexión de codo y cierra los brazos de forma controlada."],
+["Biceps Curl","Bíceps","2 × 10–12",2,60,"Mantén los brazos apoyados y evita despegar los hombros o usar impulso."],
+["Triceps Press / Extension","Tríceps","2 × 10–12",2,60,"Mantén el cuerpo estable y extiende el codo de forma controlada."],
+["Abdominal Crunch","Core","3 × 12–15",3,60,"Flexiona el tronco con control; evita tirar con brazos o cuello."]
+],
+B:[
+["Incline Chest Press","Pecho superior","3 × 10–12",3,90,"Espalda apoyada; empuja de forma controlada manteniendo hombros estables."],
+["Lat Pulldown","Espalda · dorsal","3 × 10–12",3,90,"Usa un agarre cómodo y controla tanto la bajada como el retorno."],
+["Seated Row · otro agarre","Espalda","3 × 10–12",3,90,"Cambia el agarre respecto al martes si la máquina lo permite. Evita balancear el torso."],
+["Lateral Raise","Hombro lateral","3 × 12–15",3,75,"Eleva con control sin encoger los hombros y sin buscar una carga excesiva."],
+["Rear Delt","Hombro posterior","2 × 12–15",2,75,"Pecho apoyado si la máquina lo permite; abre los brazos sin impulso."],
+["Biceps Curl","Bíceps","2 × 10–12",2,60,"Movimiento lento y controlado; no balancees el cuerpo."],
+["Triceps Extension","Tríceps","2 × 10–12",2,60,"Mantén los codos estables y controla la vuelta."],
+["Abdominal Crunch","Core","3 × 12–15",3,60,"Flexiona el tronco con control y mantén el cuello relajado."]
+]};
+const warm=[["Movilidad articular","≈ 5 min · hombros, codos, muñecas y tronco"],["Elíptica inicial","15 min · ritmo suave/moderado"]];
+const end=[["Elíptica final","15 min · ritmo moderado"]];
+let day=localStorage.getItem("gymDay")||((new Date().getDay()==4)?"B":"A");
+let timer=90, running=false, interval=null;
+const key=()=>`gym-${new Date().toISOString().slice(0,10)}-${day}`;
+const state=()=>JSON.parse(localStorage.getItem(key())||'{"sets":{},"weights":{},"notes":{},"checks":{}}');
+const save=s=>{localStorage.setItem(key(),JSON.stringify(s)); updateProgress()};
+function switchDay(d){day=d;localStorage.setItem("gymDay",d);render()}
+function render(){
+document.getElementById("date").textContent=new Intl.DateTimeFormat("es-ES",{weekday:"long",day:"numeric",month:"long"}).format(new Date());
+document.getElementById("tue").classList.toggle("active",day==="A");document.getElementById("thu").classList.toggle("active",day==="B");
+renderChecks("warmup",warm,"w"); renderChecks("finish",end,"f");
+const s=state(), box=document.getElementById("workout");box.innerHTML="";
+routines[day].forEach((e,i)=>{
+let completed=(s.sets[i]||[]).filter(Boolean).length===e[3];
+let div=document.createElement("div");div.className="card"+(completed?" done":"");
+let sets=Array.from({length:e[3]},(_,j)=>`<button class="set ${(s.sets[i]||[])[j]?"on":""}" onclick="setDone(${i},${j},${e[4]})">${j+1}</button>`).join("");
+let last=localStorage.getItem("lastWeight-"+day+"-"+i)||"";
+div.innerHTML=`<div class="top"><div><div class="name">${e[0]}</div><div class="meta">${e[1]} · ${e[2]}</div></div><div class="badge">${e[4]} s</div></div>
+<div class="controls"><span class="smalltxt">Peso hoy</span><input class="weight" inputmode="decimal" value="${s.weights[i]||""}" placeholder="kg" onchange="weight(${i},this.value)"> <span class="smalltxt">kg ${last?`· anterior: ${last} kg`:""}</span></div>
+<div class="sets">${sets}</div><input class="note" value="${s.notes[i]||""}" placeholder="Nota opcional…" onchange="note(${i},this.value)">
+<details><summary>¿Cómo se hace?</summary><p>${e[5]}</p></details>`;box.appendChild(div)});
+updateProgress();
+}
+function renderChecks(id,arr,prefix){let s=state(),box=document.getElementById(id);box.innerHTML="";arr.forEach((x,i)=>{let on=s.checks[prefix+i];box.innerHTML+=`<div class="card warm"><div><div class="name">${x[0]}</div><div class="meta">${x[1]}</div></div><button class="check ${on?"on":""}" onclick="check('${prefix+i}')">${on?"✓":""}</button></div>`})}
+function check(id){let s=state();s.checks[id]=!s.checks[id];save(s);render()}
+function setDone(i,j,rest){let s=state();s.sets[i]=s.sets[i]||[];s.sets[i][j]=!s.sets[i][j];save(s);if(s.sets[i][j]){setTimer(rest);startTimer()}render()}
+function weight(i,v){let s=state();s.weights[i]=v;save(s)}
+function note(i,v){let s=state();s.notes[i]=v;save(s)}
+function updateProgress(){let s=state(),total=routines[day].reduce((a,e)=>a+e[3],0)+3,done=Object.values(s.sets).flat().filter(Boolean).length+Object.values(s.checks).filter(Boolean).length;let p=Math.min(100,Math.round(done/total*100));document.getElementById("bar").style.width=p+"%";document.getElementById("status").textContent=p+"% completado"}
+function setTimer(x){timer=x;running=false;clearInterval(interval);drawTimer()}
+function drawTimer(){document.getElementById("time").textContent=String(Math.floor(timer/60)).padStart(2,"0")+":"+String(timer%60).padStart(2,"0");document.getElementById("play").textContent=running?"Ⅱ":"▶"}
+function startTimer(){running=true;clearInterval(interval);interval=setInterval(()=>{if(timer<=0){clearInterval(interval);running=false;if(navigator.vibrate)navigator.vibrate([200,100,200]);drawTimer();return}timer--;drawTimer()},1000);drawTimer()}
+function toggleTimer(){running?(running=false,clearInterval(interval),drawTimer()):startTimer()}
+function finishWorkout(){let s=state();routines[day].forEach((e,i)=>{if(s.weights[i])localStorage.setItem("lastWeight-"+day+"-"+i,s.weights[i])});localStorage.setItem("lastCompleted",new Date().toISOString());alert("Entrenamiento guardado 💪\\nLos pesos quedarán como referencia para la próxima sesión.")}
+render();drawTimer();
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script></body></html>

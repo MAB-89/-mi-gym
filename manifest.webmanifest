@@ -1,9 +1,1 @@
-{
-  "name": "Mi Gym · Martes y Jueves",
-  "short_name": "Mi Gym",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#0f1012",
-  "theme_color": "#0f1012"
-}
+{"name": "Mi Gym · Martes y Jueves", "short_name": "Mi Gym", "start_url": "./", "scope": "./", "display": "standalone", "background_color": "#0f1012", "theme_color": "#0f1012"}

@@ -40,6 +40,9 @@ details{margin-top:9px;color:var(--muted);font-size:13px}summary{color:#ddd}
 @keyframes move{from{transform:translate(0,0)}to{transform:translate(0,-13px)}}
 .motionX{animation:moveX 1.35s ease-in-out infinite alternate;transform-origin:center}
 @keyframes moveX{from{transform:translateX(-13px)}to{transform:translateX(13px)}}
+
+.motionCaption{font-size:12px;color:#c9ced6;padding:7px 10px 9px;text-align:center;background:#11151a}
+.clearVisual{height:auto}.clearVisual svg{height:230px;background:radial-gradient(circle at 50% 45%,#262b32,#121519 70%)}
 </style></head>
 <body><main>
 <header><div><h1>🏋️ Mi Gym</h1><div id="date" class="muted"></div></div><div id="pct" class="tiny"></div></header>
@@ -80,37 +83,48 @@ function showView(id,b){["train","hist","prog"].forEach(x=>document.getElementBy
 function switchDay(d){day=d;localStorage.gymV2day=d;render()}
 function previous(d,i){return hist().find(x=>x.day===d&&x.sets&&x.sets[i]&&x.sets[i].length)}
 
+
+function arrow(x1,y1,x2,y2){
+ return `<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d7ff32"/></marker></defs>
+ <path d="M${x1} ${y1} L${x2} ${y2}" stroke="#d7ff32" stroke-width="7" fill="none" marker-end="url(#arr)" stroke-linecap="round"/>`;
+}
 function machineVisual(k,label){
- const base=`<svg viewBox="0 0 360 220" aria-label="${label}">
- <g stroke="#d7ff32" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round">
- <path d="M58 188H302"/><path d="M85 188V52M275 188V52"/><path d="M85 55H275"/>
- </g><g stroke="#a8adb7" stroke-width="6" fill="none" stroke-linecap="round">`;
- const art={
- chest:`<path d="M145 175V105H215V175"/><path d="M145 110H215"/><path d="M125 92H235"/><path d="M125 92V135M235 92V135"/><circle cx="180" cy="82" r="13"/><path d="M180 96V145M180 112L130 125M180 112L230 125"/>`,
- lat:`<path d="M132 175V125H228V175"/><path d="M150 125V92H210V125"/><path d="M120 70H240"/><path d="M135 70L150 105M225 70L210 105"/><circle cx="180" cy="105" r="12"/><path d="M180 118V155M180 128L150 103M180 128L210 103"/>`,
- row:`<path d="M115 175H230"/><path d="M140 175V135H215V175"/><path d="M245 90V175"/><path d="M245 100L205 120"/><circle cx="175" cy="105" r="12"/><path d="M175 118L160 150M175 125L215 120"/>`,
- shoulder:`<path d="M140 175V120H220V175"/><circle cx="180" cy="100" r="12"/><path d="M180 113V150M180 122L145 92M180 122L215 92"/><path d="M140 78V115M220 78V115"/><path d="M132 78H155M205 78H228"/>`,
- pec:`<path d="M145 175V120H215V175"/><circle cx="180" cy="100" r="12"/><path d="M180 113V150"/><path d="M180 122L125 105M180 122L235 105"/><path d="M118 82V135M242 82V135"/>`,
- biceps:`<path d="M130 175V130H230V175"/><path d="M135 130L155 105H205L225 130"/><circle cx="180" cy="85" r="12"/><path d="M180 98V130M160 110L145 130M200 110L215 130"/>`,
- triceps:`<path d="M140 175V120H220V175"/><circle cx="180" cy="90" r="12"/><path d="M180 103V145M180 115L150 135M180 115L210 135"/><path d="M135 105H225"/><path d="M135 105V150M225 105V150"/>`,
- core:`<path d="M80 160H280"/><circle cx="125" cy="125" r="11"/><path d="M138 130L205 145L250 140"/><path d="M155 135L125 158M205 145L235 165"/>`,
- coreB:`<path d="M95 170L265 95"/><path d="M115 162V185M245 105V185"/><circle cx="205" cy="105" r="11"/><path d="M195 115L165 135L140 150"/><path d="M165 135L195 155M165 135L150 105"/>`
+ const M={
+ chest:`<path d="M90 180V55H270V180M90 58H270" class="machine"/><rect x="135" y="132" width="90" height="18" rx="8" class="pad"/><rect x="145" y="83" width="70" height="55" rx="12" class="pad"/><circle cx="180" cy="105" r="14" class="human"/><path d="M180 120V158M180 130L145 125M180 130L215 125M168 158L155 184M192 158L205 184" class="humanLine"/>
+ <g class="pressMove"><path d="M145 125L120 125M215 125L240 125" class="humanLine"/><rect x="108" y="116" width="22" height="18" rx="7" class="handle"/><rect x="230" y="116" width="22" height="18" rx="7" class="handle"/></g>${arrow(115,95,75,95)}${arrow(245,95,285,95)}`,
+ lat:`<path d="M85 185V38H275V185M85 42H275" class="machine"/><path d="M115 58H245" class="machine"/><rect x="137" y="153" width="86" height="15" rx="7" class="pad"/><circle cx="180" cy="112" r="14" class="human"/><path d="M180 127V163M170 163L158 185M190 163L202 185" class="humanLine"/>
+ <g class="latMove"><path d="M180 132L145 82M180 132L215 82" class="humanLine"/><path d="M130 72H230" class="handleLine"/></g>${arrow(250,67,250,128)}`,
+ row:`<path d="M70 185H290M245 60V185" class="machine"/><rect x="115" y="150" width="75" height="16" rx="7" class="pad"/><rect x="195" y="95" width="20" height="70" rx="8" class="pad"/><circle cx="155" cy="108" r="14" class="human"/><path d="M155 123L145 158M145 158L125 183M145 158L170 183" class="humanLine"/>
+ <g class="rowMove"><path d="M158 128L205 120" class="humanLine"/><rect x="205" y="111" width="22" height="18" rx="7" class="handle"/></g>${arrow(232,90,182,90)}`,
+ shoulder:`<path d="M85 185V45H275V185M85 48H275" class="machine"/><rect x="140" y="145" width="80" height="16" rx="7" class="pad"/><rect x="145" y="92" width="70" height="55" rx="12" class="pad"/><circle cx="180" cy="112" r="14" class="human"/><path d="M180 127V165M168 165L158 185M192 165L202 185" class="humanLine"/>
+ <g class="shoulderMove"><path d="M180 138L145 105M180 138L215 105" class="humanLine"/><rect x="132" y="94" width="22" height="18" rx="7" class="handle"/><rect x="206" y="94" width="22" height="18" rx="7" class="handle"/></g>${arrow(125,90,125,48)}${arrow(235,90,235,48)}`,
+ pec:`<path d="M75 185V50H285V185" class="machine"/><rect x="140" y="145" width="80" height="16" rx="7" class="pad"/><rect x="145" y="88" width="70" height="58" rx="12" class="pad"/><circle cx="180" cy="110" r="14" class="human"/><path d="M180 125V165" class="humanLine"/>
+ <g class="flyMove"><path d="M180 135L120 118M180 135L240 118" class="humanLine"/><rect x="106" y="108" width="18" height="28" rx="7" class="handle"/><rect x="236" y="108" width="18" height="28" rx="7" class="handle"/></g>${arrow(110,88,158,108)}${arrow(250,88,202,108)}`,
+ rear:`<path d="M75 185V50H285V185" class="machine"/><rect x="140" y="145" width="80" height="16" rx="7" class="pad"/><rect x="145" y="88" width="70" height="58" rx="12" class="pad"/><circle cx="180" cy="110" r="14" class="human"/><path d="M180 125V165" class="humanLine"/>
+ <g class="rearMove"><path d="M180 135L150 120M180 135L210 120" class="humanLine"/></g>${arrow(155,92,105,92)}${arrow(205,92,255,92)}`,
+ biceps:`<path d="M90 185H270" class="machine"/><rect x="125" y="145" width="110" height="18" rx="8" class="pad"/><path d="M125 145L145 112H215L235 145" class="machine"/><circle cx="180" cy="80" r="14" class="human"/><path d="M180 95V140" class="humanLine"/>
+ <g class="curlMove"><path d="M175 112L145 138M185 112L215 138" class="humanLine"/><rect x="132" y="132" width="20" height="14" rx="6" class="handle"/><rect x="208" y="132" width="20" height="14" rx="6" class="handle"/></g>${arrow(120,145,135,105)}${arrow(240,145,225,105)}`,
+ triceps:`<path d="M80 185V50H280V185" class="machine"/><rect x="140" y="145" width="80" height="16" rx="7" class="pad"/><circle cx="180" cy="95" r="14" class="human"/><path d="M180 110V160" class="humanLine"/>
+ <g class="triMove"><path d="M180 122L145 125M180 122L215 125" class="humanLine"/><path d="M145 125L145 155M215 125L215 155" class="humanLine"/></g>${arrow(130,120,130,165)}${arrow(230,120,230,165)}`
  };
- return `<div class="visual"><div class="visualTitle">${label}</div>${base}${art[k]||art.chest}</g></svg></div>`;
+ return `<div class="visual clearVisual"><div class="visualTitle">${label}</div><svg viewBox="0 0 360 220">
+ <style>.machine{stroke:#737b86;stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round}.pad{fill:#4b525c}.human{fill:#f0c7a5;stroke:#f4f5f7;stroke-width:4}.humanLine{stroke:#f4f5f7;stroke-width:8;fill:none;stroke-linecap:round;stroke-linejoin:round}.handle{fill:#d7ff32}.handleLine{stroke:#d7ff32;stroke-width:8;fill:none;stroke-linecap:round}.pressMove{animation:press 1.4s ease-in-out infinite alternate;transform-origin:180px 125px}.latMove{animation:lat 1.5s ease-in-out infinite alternate;transform-origin:180px 90px}.rowMove{animation:row 1.4s ease-in-out infinite alternate}.shoulderMove{animation:up 1.4s ease-in-out infinite alternate}.flyMove{animation:fly 1.5s ease-in-out infinite alternate;transform-origin:180px 135px}.rearMove{animation:rear 1.5s ease-in-out infinite alternate;transform-origin:180px 135px}.curlMove{animation:curl 1.3s ease-in-out infinite alternate;transform-origin:180px 112px}.triMove{animation:tri 1.3s ease-in-out infinite alternate}@keyframes press{to{transform:scaleX(1.18)}}@keyframes lat{to{transform:translateY(30px)}}@keyframes row{to{transform:translateX(-32px)}}@keyframes up{to{transform:translateY(-35px)}}@keyframes fly{to{transform:scaleX(.62)}}@keyframes rear{to{transform:scaleX(1.75)}}@keyframes curl{to{transform:translateY(-24px)}}@keyframes tri{to{transform:translateY(25px)}}</style>
+ ${M[k]||M.chest}</svg><div class="motionCaption">↻ La parte clara se mueve en bucle · las flechas marcan la dirección</div></div>`;
 }
 function altVisual(k,label){
- const poses={
- chest:`<circle cx="180" cy="112" r="11"/><path d="M168 122L130 145H225"/><path class="motion" d="M165 125L145 88M195 125L215 88"/><path class="motion" d="M135 85H155M205 85H225"/>`,
- lat:`<circle cx="180" cy="140" r="11"/><path d="M168 150L135 165H225"/><path class="motion" d="M180 130L180 75"/><path class="motion" d="M165 72H195"/>`,
- row:`<circle cx="155" cy="95" r="11"/><path d="M165 105L195 135L235 140"/><path d="M190 132L145 165M205 138L245 165"/><path class="motionX" d="M180 120L225 105"/><path class="motionX" d="M220 100H240"/>`,
- shoulder:`<circle cx="180" cy="120" r="11"/><path d="M180 132V170"/><path class="motion" d="M180 140L150 90M180 140L210 90"/><path class="motion" d="M140 87H160M200 87H220"/>`,
- pec:`<circle cx="180" cy="120" r="11"/><path d="M168 130L135 150H225"/><path class="motionX" d="M175 130L125 100M185 130L235 100"/><path class="motionX" d="M115 97H135M225 97H245"/>`,
- biceps:`<circle cx="180" cy="80" r="11"/><path d="M180 92V145M180 110L150 140M180 110L210 140"/><path class="motion" d="M142 140H158M202 140H218"/><path d="M165 145L155 180M195 145L205 180"/>`,
- triceps:`<circle cx="180" cy="105" r="11"/><path d="M180 117V165"/><path class="motion" d="M180 125L180 70"/><path class="motion" d="M168 68H192"/><path d="M165 165L155 190M195 165L205 190"/>`,
- pecRear:`<circle cx="180" cy="100" r="11"/><path d="M180 112L195 145"/><path class="motionX" d="M190 120L140 130M190 120L240 130"/><path class="motionX" d="M130 127H150M230 127H250"/><path d="M195 145L170 180M195 145L225 180"/>`
+ const A={
+ chest:`<rect x="92" y="160" width="176" height="16" rx="7" class="bench"/><circle cx="180" cy="130" r="13" class="human"/><path d="M165 140L125 154H230" class="body"/><g class="altPress"><path d="M160 142L140 105M200 142L220 105" class="body"/><path d="M126 100H150M210 100H234" class="db"/></g>${arrow(130,92,130,55)}${arrow(230,92,230,55)}`,
+ lat:`<rect x="85" y="165" width="190" height="16" rx="7" class="bench"/><circle cx="180" cy="135" r="13" class="human"/><path d="M165 145L120 160H235" class="body"/><g class="altPullover"><path d="M180 142L180 88" class="body"/><path d="M164 82H196" class="db"/></g>${arrow(180,72,225,120)}`,
+ row:`<rect x="90" y="160" width="130" height="16" rx="7" class="bench"/><circle cx="145" cy="100" r="13" class="human"/><path d="M155 110L190 135M190 135L225 155M190 135L145 158" class="body"/><g class="altRow"><path d="M165 118L220 120" class="body"/><path d="M215 114H239" class="db"/></g>${arrow(245,95,195,95)}`,
+ shoulder:`<rect x="120" y="155" width="120" height="16" rx="7" class="bench"/><circle cx="180" cy="110" r="13" class="human"/><path d="M180 123V160M165 160L155 185M195 160L205 185" class="body"/><g class="altShoulder"><path d="M180 135L145 105M180 135L215 105" class="body"/><path d="M132 99H154M206 99H228" class="db"/></g>${arrow(125,92,125,50)}${arrow(235,92,235,50)}`,
+ pec:`<rect x="90" y="160" width="180" height="16" rx="7" class="bench"/><circle cx="180" cy="132" r="13" class="human"/><path d="M165 142L120 158H235" class="body"/><g class="altFly"><path d="M180 145L125 112M180 145L235 112" class="body"/><path d="M113 106H137M223 106H247" class="db"/></g>${arrow(115,92,158,112)}${arrow(245,92,202,112)}`,
+ rear:`<circle cx="180" cy="85" r="13" class="human"/><path d="M180 98L200 135M200 135L165 180M200 135L235 180" class="body"/><g class="altRear"><path d="M190 115L145 130M190 115L235 130" class="body"/><path d="M133 124H157M223 124H247" class="db"/></g>${arrow(150,105,105,105)}${arrow(210,105,255,105)}`,
+ biceps:`<circle cx="180" cy="75" r="13" class="human"/><path d="M180 88V145M165 145L155 185M195 145L205 185" class="body"/><g class="altCurl"><path d="M180 105L150 140M180 105L210 140" class="body"/><path d="M138 135H160M200 135H222" class="db"/></g>${arrow(125,145,140,105)}${arrow(235,145,220,105)}`,
+ triceps:`<circle cx="180" cy="105" r="13" class="human"/><path d="M180 118V165M165 165L155 190M195 165L205 190" class="body"/><g class="altTri"><path d="M180 128L180 72" class="body"/><path d="M165 67H195" class="db"/></g>${arrow(215,80,215,130)}`
  };
- let key=k==="pecRear"?"pecRear":k;
- return `<div class="visual"><div class="visualTitle">${label}</div><svg viewBox="0 0 360 220"><g stroke="#d7ff32" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round">${poses[key]||poses.chest}</g></svg></div>`;
+ return `<div class="visual clearVisual"><div class="visualTitle">${label}</div><svg viewBox="0 0 360 220">
+ <style>.bench{fill:#535a64}.human{fill:#f0c7a5;stroke:#fff;stroke-width:4}.body{stroke:#fff;stroke-width:9;fill:none;stroke-linecap:round;stroke-linejoin:round}.db{stroke:#d7ff32;stroke-width:11;fill:none;stroke-linecap:round}.altPress,.altShoulder{animation:altUp 1.35s ease-in-out infinite alternate}.altPullover{animation:pullover 1.5s ease-in-out infinite alternate;transform-origin:180px 142px}.altRow{animation:altRow 1.35s ease-in-out infinite alternate}.altFly{animation:altFly 1.5s ease-in-out infinite alternate;transform-origin:180px 145px}.altRear{animation:altRear 1.5s ease-in-out infinite alternate;transform-origin:190px 115px}.altCurl{animation:altCurl 1.25s ease-in-out infinite alternate;transform-origin:180px 105px}.altTri{animation:altTri 1.35s ease-in-out infinite alternate;transform-origin:180px 128px}@keyframes altUp{to{transform:translateY(-36px)}}@keyframes pullover{to{transform:rotate(55deg)}}@keyframes altRow{to{transform:translateX(-35px)}}@keyframes altFly{to{transform:scaleX(.58)}}@keyframes altRear{to{transform:scaleX(1.55)}}@keyframes altCurl{to{transform:translateY(-28px)}}@keyframes altTri{to{transform:rotate(35deg)}}</style>
+ ${A[k]||A.chest}</svg><div class="motionCaption">↻ Animación en bucle · sigue las flechas verdes</div></div>`;
 }
 function coreVisual(kind){
  if(kind==="coreB") return machineVisual("coreB","BANCO INCLINADO · 3 VUELTAS")+`<div class="coregrid"><div class="coreitem"><b>Elevación de piernas estiradas</b><div class="en">INCLINE LEG RAISE</div>12 repeticiones</div><div class="coreitem"><b>Rodillas al pecho</b><div class="en">INCLINE KNEE RAISE</div>12 repeticiones</div><div class="coreitem"><b>Abdominales en banco inclinado</b><div class="en">INCLINE BENCH CRUNCH</div>12–15 repeticiones</div></div>`;
@@ -121,7 +135,7 @@ R[day].forEach((e,i)=>{let arr=s.sets[i]||[],done=arr.filter(x=>x&&x.done).lengt
 let oldtxt=old.length?"Anterior: "+old.map(x=>(x.kg||"?")+" kg × "+(x.reps||"?")).join(" · "):"Sin registro anterior";
 b.innerHTML+=`<div class="card ${done?'done':''}"><div class="row"><div><div class="name">${e[0]}</div><div class="meta">${e[1]} · ${e[3]} × ${e[4]}</div></div><div class="badge">${e[5]} s</div></div><div class="tiny" style="margin-top:8px">${oldtxt}</div><div class="gridhead"><span></span><span>KG</span><span>REPS</span><span>✓</span></div>${rows}<div class="feel">${["Fácil","Bien","Difícil"].map(v=>`<button class="${s.feel[i]===v?'on':''}" onclick="setFeel(${i},'${v}')">${v}</button>`).join("")}</div><input class="note" placeholder="Nota opcional…" value="${s.notes[i]||''}" onchange="setNote(${i},this.value)"><div class="tools"><button onclick="toggleBox('m-${day}-${i}')">📷 VER MÁQUINA</button><button onclick="toggleBox('a-${day}-${i}')">🔄 ALTERNATIVA</button></div>
 <div id="m-${day}-${i}" class="infoBox hidden">${e[6].startsWith("core")?coreVisual(e[6]):machineVisual(e[6],e[1])+`<p><b>Cómo hacerla:</b> ${e[9]}</p>`}</div>
-<div id="a-${day}-${i}" class="infoBox hidden">${e[7]?`<b>${e[7]}</b><div class="en">${e[8]}</div>${altVisual((e[0]==="Deltoides posterior"?"pecRear":e[6]),e[8])}<p>Mismas 3 series y rango de repeticiones. Usa una carga que te permita mantener el movimiento controlado.</p>`:`${coreVisual(e[6])}`}</div></div>`});progress()}
+<div id="a-${day}-${i}" class="infoBox hidden">${e[7]?`<b>${e[7]}</b><div class="en">${e[8]}</div>${altVisual((e[0]==="Deltoides posterior"?"pecRear":e[6]),e[8])}<p><b>Movimiento:</b> sigue las flechas verdes y vuelve despacio a la posición inicial.</p><p class="muted">Haz las mismas 3 series y rango de repeticiones.</p>`:`${coreVisual(e[6])}`}</div></div>`});progress()}
 function checks(id,a,p){let s=get(),b=document.getElementById(id);b.innerHTML=a.map((x,i)=>`<div class="card row"><div><div class="name">${x[0]}</div><div class="meta">${x[1]}</div></div><button class="check ${s.checks[p+i]?'on':''}" onclick="ck('${p+i}')">${s.checks[p+i]?'✓':''}</button></div>`).join("")}
 function ck(k){let s=get();s.checks[k]=!s.checks[k];put(s);render()}function edit(i,j,k,v){let s=get();s.sets[i]=s.sets[i]||[];s.sets[i][j]=s.sets[i][j]||{};s.sets[i][j][k]=v;put(s)}
 function done(i,j,r){let s=get();s.sets[i]=s.sets[i]||[];s.sets[i][j]=s.sets[i][j]||{};s.sets[i][j].done=!s.sets[i][j].done;put(s);if(s.sets[i][j].done){resetT(r);startT()}render()}

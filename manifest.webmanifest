@@ -1,9 +1,4 @@
 {
-  "name": "Mi Gym",
-  "short_name": "Mi Gym",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#0b0e12",
-  "theme_color": "#0b0e12"
+  "name":"Mi Gym","short_name":"Mi Gym","start_url":"./","display":"standalone",
+  "background_color":"#0e0f11","theme_color":"#101114"
 }

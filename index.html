@@ -43,6 +43,13 @@ details{margin-top:9px;color:var(--muted);font-size:13px}summary{color:#ddd}
 
 .motionCaption{font-size:12px;color:#c9ced6;padding:7px 10px 9px;text-align:center;background:#11151a}
 .clearVisual{height:auto}.clearVisual svg{height:230px;background:radial-gradient(circle at 50% 45%,#262b32,#121519 70%)}
+
+.photoGuide{margin-top:10px;border:1px solid #343840;border-radius:16px;overflow:hidden;background:#101419}
+.photoGuide img{width:100%;display:block;max-height:520px;object-fit:cover;object-position:top}
+.photoGuide .cap{padding:10px 12px;color:#d7dde6;font-size:13px;line-height:1.35}
+.twoStep{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.step{background:#171b20;border:1px solid #343840;border-radius:12px;padding:10px}
+.step b{display:block;margin-bottom:4px}.arrowTxt{color:#d7ff32;font-weight:900}
 </style></head>
 <body><main>
 <header><div><h1>🏋️ Mi Gym</h1><div id="date" class="muted"></div></div><div id="pct" class="tiny"></div></header>
@@ -88,6 +95,23 @@ function arrow(x1,y1,x2,y2){
  return `<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#d7ff32"/></marker></defs>
  <path d="M${x1} ${y1} L${x2} ${y2}" stroke="#d7ff32" stroke-width="7" fill="none" marker-end="url(#arr)" stroke-linecap="round"/>`;
 }
+
+function photoGuide(file,title,move){return `<div class="photoGuide"><img src="./${file}" alt="${title}"><div class="cap"><b>${title}</b><br><span class="arrowTxt">→ ${move}</span></div></div>`}
+function clearSteps(title,start,move){return `<div class="photoGuide"><div class="cap"><b>${title}</b></div><div class="twoStep"><div class="step"><b>1 · Posición inicial</b>${start}</div><div class="step"><b>2 · Movimiento</b><span class="arrowTxt">→ ${move}</span></div></div><div class="cap">Vuelve despacio a la posición inicial.</div></div>`}
+function bestMachine(k,label){
+ if(k==="chest")return photoGuide("photo-chest-machine.jpg",label,"Empuja hacia delante y vuelve con control.");
+ if(k==="lat")return photoGuide("photo-lat-machine.jpg",label,"Baja el agarre hacia la parte superior del pecho.");
+ if(k==="row")return photoGuide("photo-row-machine.jpg",label,"Tira del agarre hacia el abdomen llevando los codos atrás.");
+ if(k==="triceps")return photoGuide("photo-triceps-machine.jpg",label,"Extiende los brazos hacia abajo manteniendo los codos estables.");
+ const q={shoulder:["Espalda apoyada; asas a la altura de los hombros.","Empuja las asas hacia arriba sin encoger los hombros."],pec:["Espalda apoyada; brazos abiertos y codos ligeramente flexionados.","Cierra los brazos delante del pecho."],rear:["Pecho apoyado; brazos delante y codos suaves.","Abre los brazos hacia los lados llevando los codos atrás."],biceps:["Brazos apoyados; alinea el codo con el pivote.","Flexiona los codos acercando las manos hacia ti."]}[k];
+ return clearSteps(label,q[0],q[1]);
+}
+function bestAlt(k,label){
+ if(k==="chest")return photoGuide("photo-chest-alt.jpg",label,"Baja las mancuernas hacia el pecho y empuja verticalmente.");
+ if(k==="triceps")return photoGuide("photo-triceps-alt.jpg",label,"Desde detrás de la cabeza, extiende los codos hacia arriba.");
+ const q={lat:["Túmbate en banco y sujeta una mancuerna sobre el pecho con ambas manos.","Lleva la mancuerna por detrás de la cabeza y regresa."],row:["Apoya una mano y rodilla en banco; espalda neutra.","Lleva la mancuerna hacia la cadera, codo pegado al cuerpo."],shoulder:["Sentado, mancuernas junto a los hombros.","Empuja ambas mancuernas verticalmente."],pec:["Tumbado, mancuernas sobre el pecho y codos ligeramente flexionados.","Abre los brazos a los lados y vuelve a juntarlos."],rear:["Inclina el torso con espalda neutra y mancuernas debajo de los hombros.","Abre los brazos hacia los lados sin balancearte."],biceps:["De pie o sentado, brazos junto al cuerpo.","Flexiona los codos sin moverlos hacia delante."]}[k];
+ return clearSteps(label,q[0],q[1]);
+}
 function machineVisual(k,label){
  const M={
  chest:`<path d="M90 180V55H270V180M90 58H270" class="machine"/><rect x="135" y="132" width="90" height="18" rx="8" class="pad"/><rect x="145" y="83" width="70" height="55" rx="12" class="pad"/><circle cx="180" cy="105" r="14" class="human"/><path d="M180 120V158M180 130L145 125M180 130L215 125M168 158L155 184M192 158L205 184" class="humanLine"/>
@@ -127,15 +151,15 @@ function altVisual(k,label){
  ${A[k]||A.chest}</svg><div class="motionCaption">↻ Animación en bucle · sigue las flechas verdes</div></div>`;
 }
 function coreVisual(kind){
- if(kind==="coreB") return machineVisual("coreB","BANCO INCLINADO · 3 VUELTAS")+`<div class="coregrid"><div class="coreitem"><b>Elevación de piernas estiradas</b><div class="en">INCLINE LEG RAISE</div>12 repeticiones</div><div class="coreitem"><b>Rodillas al pecho</b><div class="en">INCLINE KNEE RAISE</div>12 repeticiones</div><div class="coreitem"><b>Abdominales en banco inclinado</b><div class="en">INCLINE BENCH CRUNCH</div>12–15 repeticiones</div></div>`;
- return machineVisual("core","CORE EN SUELO · 3 VUELTAS")+`<div class="coregrid"><div class="coreitem"><b>Plancha</b><div class="en">PLANK</div>30 segundos</div><div class="coreitem"><b>Escaladores</b><div class="en">MOUNTAIN CLIMBERS</div>12 por pierna</div><div class="coreitem"><b>Plancha arriba-abajo</b><div class="en">UP-DOWN PLANK</div>12 repeticiones</div></div>`;
+ if(kind==="coreB") return photoGuide("photo-core-bench.jpg","CORE · BANCO INCLINADO","Completa los 3 ejercicios y descansa 60 s.")+`<div class="coregrid"><div class="coreitem"><b>Elevación de piernas estiradas</b><div class="en">INCLINE LEG RAISE</div>12 repeticiones</div><div class="coreitem"><b>Rodillas al pecho</b><div class="en">INCLINE KNEE RAISE</div>12 repeticiones</div><div class="coreitem"><b>Abdominales en banco inclinado</b><div class="en">INCLINE BENCH CRUNCH</div>12–15 repeticiones</div></div>`;
+ return photoGuide("photo-core-floor.jpg","CORE · SUELO","Completa los 3 ejercicios y descansa 60 s.")+`<div class="coregrid"><div class="coreitem"><b>Plancha</b><div class="en">PLANK</div>30 segundos</div><div class="coreitem"><b>Escaladores</b><div class="en">MOUNTAIN CLIMBERS</div>12 por pierna</div><div class="coreitem"><b>Plancha arriba-abajo</b><div class="en">UP-DOWN PLANK</div>12 repeticiones</div></div>`;
 }
 function render(){document.getElementById("date").textContent=new Intl.DateTimeFormat("es-ES",{weekday:"long",day:"numeric",month:"long"}).format(new Date());document.getElementById("dayA").classList.toggle("active",day==="A");document.getElementById("dayB").classList.toggle("active",day==="B");checks("warm",W,"w");checks("end",E,"e");let s=get(),b=document.getElementById("work");b.innerHTML="";
 R[day].forEach((e,i)=>{let arr=s.sets[i]||[],done=arr.filter(x=>x&&x.done).length===e[3],p=previous(day,i),old=p?.sets?.[i]||[];let rows=Array.from({length:e[3]},(_,j)=>{let q=arr[j]||{};return `<div class="setrow"><b>${j+1}</b><input class="inp" inputmode="decimal" placeholder="${old[j]?.kg||'kg'}" value="${q.kg||''}" onchange="edit(${i},${j},'kg',this.value)"><input class="inp" inputmode="numeric" placeholder="${old[j]?.reps||'reps'}" value="${q.reps||''}" onchange="edit(${i},${j},'reps',this.value)"><button class="setcheck ${q.done?'on':''}" onclick="done(${i},${j},${e[5]})">${q.done?'✓':j+1}</button></div>`}).join("");
 let oldtxt=old.length?"Anterior: "+old.map(x=>(x.kg||"?")+" kg × "+(x.reps||"?")).join(" · "):"Sin registro anterior";
 b.innerHTML+=`<div class="card ${done?'done':''}"><div class="row"><div><div class="name">${e[0]}</div><div class="meta">${e[1]} · ${e[3]} × ${e[4]}</div></div><div class="badge">${e[5]} s</div></div><div class="tiny" style="margin-top:8px">${oldtxt}</div><div class="gridhead"><span></span><span>KG</span><span>REPS</span><span>✓</span></div>${rows}<div class="feel">${["Fácil","Bien","Difícil"].map(v=>`<button class="${s.feel[i]===v?'on':''}" onclick="setFeel(${i},'${v}')">${v}</button>`).join("")}</div><input class="note" placeholder="Nota opcional…" value="${s.notes[i]||''}" onchange="setNote(${i},this.value)"><div class="tools"><button onclick="toggleBox('m-${day}-${i}')">📷 VER MÁQUINA</button><button onclick="toggleBox('a-${day}-${i}')">🔄 ALTERNATIVA</button></div>
-<div id="m-${day}-${i}" class="infoBox hidden">${e[6].startsWith("core")?coreVisual(e[6]):machineVisual(e[6],e[1])+`<p><b>Cómo hacerla:</b> ${e[9]}</p>`}</div>
-<div id="a-${day}-${i}" class="infoBox hidden">${e[7]?`<b>${e[7]}</b><div class="en">${e[8]}</div>${altVisual((e[0]==="Deltoides posterior"?"pecRear":e[6]),e[8])}<p><b>Movimiento:</b> sigue las flechas verdes y vuelve despacio a la posición inicial.</p><p class="muted">Haz las mismas 3 series y rango de repeticiones.</p>`:`${coreVisual(e[6])}`}</div></div>`});progress()}
+<div id="m-${day}-${i}" class="infoBox hidden">${e[6].startsWith("core")?coreVisual(e[6]):bestMachine(e[6],e[1])+`<p><b>Cómo hacerla:</b> ${e[9]}</p>`}</div>
+<div id="a-${day}-${i}" class="infoBox hidden">${e[7]?`<b>${e[7]}</b><div class="en">${e[8]}</div>${bestAlt((e[0]==="Deltoides posterior"?"rear":e[6]),e[8])}<p><b>Movimiento:</b> sigue las flechas verdes y vuelve despacio a la posición inicial.</p><p class="muted">Haz las mismas 3 series y rango de repeticiones.</p>`:`${coreVisual(e[6])}`}</div></div>`});progress()}
 function checks(id,a,p){let s=get(),b=document.getElementById(id);b.innerHTML=a.map((x,i)=>`<div class="card row"><div><div class="name">${x[0]}</div><div class="meta">${x[1]}</div></div><button class="check ${s.checks[p+i]?'on':''}" onclick="ck('${p+i}')">${s.checks[p+i]?'✓':''}</button></div>`).join("")}
 function ck(k){let s=get();s.checks[k]=!s.checks[k];put(s);render()}function edit(i,j,k,v){let s=get();s.sets[i]=s.sets[i]||[];s.sets[i][j]=s.sets[i][j]||{};s.sets[i][j][k]=v;put(s)}
 function done(i,j,r){let s=get();s.sets[i]=s.sets[i]||[];s.sets[i][j]=s.sets[i][j]||{};s.sets[i][j].done=!s.sets[i][j].done;put(s);if(s.sets[i][j].done){resetT(r);startT()}render()}
